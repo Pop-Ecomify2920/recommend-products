@@ -1,201 +1,72 @@
 import { useState, useEffect } from "react";
-import { Sparkles, Target } from "lucide-react";
+import { Sparkles, Target, Loader2, AlertCircle } from "lucide-react";
 import { CreatorCard } from "@/components/CreatorCard";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductModal } from "@/components/ProductModal";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
+import { KPIScoringSection } from "@/components/KPIScoringSection";
 import { useToast } from "@/hooks/use-toast";
-
-// API configuration - will be replaced with actual endpoints
-const API_BASE = "";
-
-interface Creator {
-  account_id: string;
-  followers: number;
-  engagement_rate: number;
-  tier: string;
-  language: string;
-  has_content: boolean;
-}
-
-interface Recommendation {
-  group_id: string;
-  title?: string;
-  hero_image?: string;
-  category?: string;
-  region?: string;
-  variants_count?: number;
-  price_min?: number;
-  price_max?: number;
-  currency?: string;
-  score: number;
-}
+import { 
+  RecommendationAPI, 
+  type Creator, 
+  type Recommendation, 
+  type ProductGroup, 
+  type ProductVariant 
+} from "@/services/api";
 
 const Index = () => {
   const [creators, setCreators] = useState<Creator[]>([]);
   const [currentCreator, setCurrentCreator] = useState<Creator | null>(null);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedGroup, setSelectedGroup] = useState<any>(null);
-  const [variants, setVariants] = useState<any[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<ProductGroup | null>(null);
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
+  const [modalLoading, setModalLoading] = useState(false);
   const { toast } = useToast();
 
-  // Mock data for demonstration - replace with actual API calls
-  const mockCreators: Creator[] = [
-    {
-      account_id: "fashion_influencer_01",
-      followers: 1250000,
-      engagement_rate: 0.0485,
-      tier: "Premium",
-      language: "en",
-      has_content: true,
-    },
-    {
-      account_id: "style_guru_22",
-      followers: 890000,
-      engagement_rate: 0.0623,
-      tier: "Elite",
-      language: "de",
-      has_content: true,
-    },
-    {
-      account_id: "trendsetter_99",
-      followers: 2100000,
-      engagement_rate: 0.0391,
-      tier: "Premium",
-      language: "en",
-      has_content: true,
-    },
-  ];
-
-  const mockRecommendations: Recommendation[] = [
-    {
-      group_id: "sneakers_001",
-      title: "Premium Running Sneakers",
-      hero_image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop",
-      category: "Footwear",
-      region: "EU",
-      variants_count: 12,
-      price_min: 89.99,
-      price_max: 129.99,
-      currency: "€",
-      score: 0.942,
-    },
-    {
-      group_id: "jacket_042",
-      title: "Designer Winter Jacket",
-      hero_image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=300&fit=crop",
-      category: "Outerwear",
-      region: "EU",
-      variants_count: 8,
-      price_min: 149.99,
-      price_max: 199.99,
-      currency: "€",
-      score: 0.918,
-    },
-    {
-      group_id: "sneakers_001",
-      title: "Premium Running Sneakers",
-      hero_image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop",
-      category: "Footwear",
-      region: "EU",
-      variants_count: 12,
-      price_min: 89.99,
-      price_max: 129.99,
-      currency: "€",
-      score: 0.942,
-    },
-    {
-      group_id: "dress_133",
-      title: "Elegant Summer Dress",
-      hero_image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=300&fit=crop",
-      category: "Dresses",
-      region: "EU",
-      variants_count: 15,
-      price_min: 59.99,
-      price_max: 89.99,
-      currency: "€",
-      score: 0.895,
-    },
-    {
-      group_id: "jeans_089",
-      title: "Classic Denim Jeans",
-      hero_image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=300&fit=crop",
-      category: "Bottoms",
-      region: "EU",
-      variants_count: 20,
-      price_min: 69.99,
-      price_max: 99.99,
-      currency: "€",
-      score: 0.887,
-    },
-    {
-      group_id: "bag_255",
-      title: "Leather Handbag Collection",
-      hero_image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=300&fit=crop",
-      category: "Accessories",
-      region: "EU",
-      variants_count: 6,
-      price_min: 119.99,
-      price_max: 179.99,
-      currency: "€",
-      score: 0.871,
-    },
-    {
-      group_id: "jeans_089",
-      title: "Classic Denim Jeans",
-      hero_image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=300&fit=crop",
-      category: "Bottoms",
-      region: "EU",
-      variants_count: 20,
-      price_min: 69.99,
-      price_max: 99.99,
-      currency: "€",
-      score: 0.887,
-    },
-    {
-      group_id: "bag_255",
-      title: "Leather Handbag Collection",
-      hero_image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=300&fit=crop",
-      category: "Accessories",
-      region: "EU",
-      variants_count: 6,
-      price_min: 119.99,
-      price_max: 179.99,
-      currency: "€",
-      score: 0.871,
-    },
-  ];
-
+  // API Integration Functions
   const fetchRandomCreator = async () => {
     setIsLoading(true);
+    setError(null);
     
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    
-    // Use mock data
-    const randomCreator = mockCreators[Math.floor(Math.random() * mockCreators.length)];
-    setCurrentCreator(randomCreator);
-    setRecommendations(mockRecommendations);
-    setIsLoading(false);
+    try {
+      const { creator, recommendations } = await RecommendationAPI.getRandomCreatorWithRecommendations();
+      setCurrentCreator(creator);
+      setRecommendations(recommendations);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load data';
+      setError(errorMessage);
+      toast({
+        title: "Fehler beim Laden",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleOpenGroup = async (groupId: string) => {
-    // Mock variant data
-    const mockVariants = Array.from({ length: 6 }, (_, i) => ({
-      "Product Image": `https://images.unsplash.com/photo-${1542291026 + i}-7eec264c27ff?w=300&h=300&fit=crop`,
-      "Product Name": `Variant ${i + 1}`,
-      "Size": ["S", "M", "L", "XL"][i % 4],
-      "Color": ["Black", "White", "Blue", "Red"][i % 4],
-      "Product Price": 89.99 + i * 10,
-    }));
-
-    const mockGroup = recommendations.find((r) => r.group_id === groupId);
-    
-    setSelectedGroup(mockGroup);
-    setVariants(mockVariants);
+    setModalLoading(true);
     setModalOpen(true);
+    
+    try {
+      const { group, variants } = await RecommendationAPI.getProductGroup(groupId);
+      setSelectedGroup(group);
+      setVariants(variants);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load product details';
+      toast({
+        title: "Fehler beim Laden",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      setModalOpen(false);
+    } finally {
+      setModalLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -204,8 +75,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/10">
-      {/* Hero Header */}
-      <header className="relative overflow-hidden bg-gradient-to-r from-primary via-[hsl(20_100%_52%)] to-primary text-primary-foreground py-16 shadow-2xl animate-fade-in">
+      {/* Hero Header - Zalando Style */}
+      <header className="relative overflow-hidden bg-gradient-to-r from-[#FF6900] via-[#FF6900] to-[#FF8C00] text-white py-20 shadow-2xl animate-fade-in">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-24 -left-24 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse-slow"></div>
@@ -213,13 +84,17 @@ const Index = () => {
         </div>
         
         <div className="container mx-auto px-4 relative z-10">
-          <div className="flex items-center justify-center gap-4 mb-4 animate-bounce-in">
-            <Target className="h-12 w-12 md:h-14 md:w-14 animate-float" />
-            <h1 className="text-5xl md:text-7xl font-black tracking-tight" style={{fontFamily:"cursive"}}>Product Recommendations</h1>
+          <div className="flex items-center justify-center gap-4 mb-6 animate-bounce-in">
+            <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+              <Target className="h-8 w-8 animate-float" />
+            </div>
+            <h1 className="text-6xl md:text-8xl font-black tracking-tight" style={{fontFamily:"system-ui, -apple-system, sans-serif"}}>
+              ZALANDO
+            </h1>
           </div>
-          <div className="flex items-center justify-center gap-2 text-xl animate-slide-in" style={{ animationDelay: '200ms' }}>
-            <Sparkles className="h-6 w-6 animate-glow" />
-            <p className="text-primary-foreground/95 font-medium">AI-Powered Creator-Product Matching System</p>
+          <div className="flex items-center justify-center gap-3 text-2xl animate-slide-in" style={{ animationDelay: '200ms' }}>
+            <Sparkles className="h-7 w-7 animate-glow" />
+            <p className="text-white/95 font-semibold">ML-gestützte Produkt-Moderations-Pipeline zur Shop-Kunden-Kopplung</p>
           </div>
         </div>
       </header>
@@ -227,7 +102,33 @@ const Index = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {isLoading ? (
-          <LoadingSkeleton />
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="relative">
+              <Loader2 className="h-16 w-16 animate-spin text-[#FF6900]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FF6900] to-[#FF8C00] rounded-full blur-lg opacity-30 animate-pulse"></div>
+            </div>
+            <p className="mt-6 text-xl font-semibold text-foreground animate-pulse">Lade neue Empfehlungen...</p>
+            <div className="mt-4 flex space-x-2">
+              <div className="w-3 h-3 bg-[#FF6900] rounded-full animate-bounce"></div>
+              <div className="w-3 h-3 bg-[#FF6900] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+              <div className="w-3 h-3 bg-[#FF6900] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="relative">
+              <AlertCircle className="h-16 w-16 text-red-500" />
+              <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-600 rounded-full blur-lg opacity-20 animate-pulse"></div>
+            </div>
+            <h3 className="mt-6 text-xl font-semibold text-foreground">Fehler beim Laden</h3>
+            <p className="mt-2 text-muted-foreground text-center max-w-md">{error}</p>
+            <button
+              onClick={fetchRandomCreator}
+              className="mt-6 bg-gradient-to-r from-[#FF6900] to-[#FF8C00] text-white font-bold px-8 py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            >
+              Erneut versuchen
+            </button>
+          </div>
         ) : currentCreator ? (
           <>
             <CreatorCard
@@ -236,12 +137,15 @@ const Index = () => {
               isLoading={isLoading}
             />
 
+            {/* KPI Scoring Section */}
+            <KPIScoringSection creator={currentCreator} />
+
             <div className="mb-8 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
-              <h2 className="text-3xl font-black text-foreground mb-3 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-                Recommended Products
+              <h2 className="text-3xl font-black text-foreground mb-3 bg-gradient-to-r from-[#FF6900] via-[#FF8C00] to-[#FF6900] bg-clip-text text-transparent">
+                Kurierte Produkte
               </h2>
               <p className="text-lg text-muted-foreground font-medium">
-                Top matches based on creator profile and engagement metrics
+                Matches basierend auf KPI Scorer-Modulen
               </p>
             </div>
 
@@ -261,7 +165,7 @@ const Index = () => {
           </>
         ) : (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">No creator data available</p>
+            <p className="text-muted-foreground text-lg">Keine Creator-Daten verfügbar</p>
           </div>
         )}
       </main>
@@ -272,14 +176,21 @@ const Index = () => {
         onClose={() => setModalOpen(false)}
         group={selectedGroup}
         variants={variants}
+        isLoading={modalLoading}
       />
 
-      {/* Footer */}
-      <footer className="relative bg-gradient-to-br from-secondary/50 to-secondary/30 backdrop-blur-sm border-t border-border/50 py-8 mt-16 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5"></div>
+      {/* Footer - Zalando Style */}
+      <footer className="relative bg-gradient-to-br from-[#FF6900]/10 to-[#FF8C00]/5 backdrop-blur-sm border-t border-[#FF6900]/20 py-12 mt-16 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FF6900]/5 via-transparent to-[#FF6900]/5"></div>
         <div className="container mx-auto px-4 text-center relative z-10">
-          <p className="text-sm text-muted-foreground font-medium animate-fade-in" style={{fontSize:"15px", color:"#000000"}}>
-            Powered by AI • Ready for API Integration • Zalando Style
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="w-8 h-8 bg-gradient-to-r from-[#FF6900] to-[#FF8C00] rounded-lg flex items-center justify-center">
+              <Target className="h-4 w-4 text-white" />
+            </div>
+            <span className="text-lg font-bold text-[#FF6900]">ZALANDO</span>
+          </div>
+          <p className="text-sm text-muted-foreground font-medium animate-fade-in">
+            ML-gestützte Produkt-Moderations-Pipeline • API-Integration bereit • Zalando Branding
           </p>
         </div>
       </footer>

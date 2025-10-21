@@ -68,13 +68,13 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
         {/* Gradient overlay on hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         
-        <div className="absolute top-3 right-3 bg-gradient-to-r from-primary to-primary-hover text-primary-foreground text-xs font-bold px-4 py-2 rounded-full transform transition-all duration-300 group-hover:scale-110 animate-bounce-in" style={{ boxShadow: 'var(--shadow-primary)', animationDelay: '100ms', marginRight: '100px', }}>
+        <div className="absolute top-3 right-3 bg-gradient-to-r from-[#FF6900] to-[#FF8C00] text-white text-xs font-bold px-4 py-2 rounded-full transform transition-all duration-300 group-hover:scale-110 animate-bounce-in" style={{ boxShadow: '0 4px 12px rgba(255, 105, 0, 0.4)', animationDelay: '100ms', marginRight: '100px', }}>
           Score: {typeof product.score === "number" ? product.score.toFixed(3) : product.score}
         </div>
       </div>
       
       <div className="relative p-5 bg-gradient-to-br from-card/95 to-card/98 backdrop-blur-sm" style={{ boxShadow: 'irgba(0, 0, 0, 0.1) 0px 3px 25px inset', background:"#ff660003" }}>
-        <h3 className="font-bold text-lg text-foreground mb-2 line-clamp-2 transition-all duration-300 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-primary-hover group-hover:bg-clip-text" style={{ fontSize: '22px' }}>
+        <h3 className="font-bold text-lg text-foreground mb-2 line-clamp-2 transition-all duration-300 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-[#FF6900] group-hover:to-[#FF8C00] group-hover:bg-clip-text" style={{ fontSize: '22px' }}>
           {product.title || product.group_id}
         </h3>
         {details && (
@@ -85,8 +85,8 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
         {price && (
           <div className="flex justify-between items-center pt-2 border-t border-border/30">
             <span className="text-l font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">{price}</span>
-            <div className="w-12 h-8 rounded-full bg-primary/10 flex items-center justify-center transform transition-all duration-300 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-12">
-              <span className="text-primary group-hover:text-primary-foreground transition-colors duration-300" style={{marginBottom: "3px", fontSize:"22px"}}>→</span>
+            <div className="w-12 h-8 rounded-full bg-[#FF6900]/10 flex items-center justify-center transform transition-all duration-300 group-hover:bg-[#FF6900] group-hover:scale-110 group-hover:rotate-12">
+              <span className="text-[#FF6900] group-hover:text-white transition-colors duration-300" style={{marginBottom: "3px", fontSize:"22px"}}>→</span>
             </div>
           </div>
         )}

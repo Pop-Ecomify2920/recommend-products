@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface Variant {
@@ -20,22 +20,32 @@ interface ProductModalProps {
     currency?: string;
   } | null;
   variants: Variant[];
+  isLoading?: boolean;
 }
 
-export const ProductModal = ({ isOpen, onClose, group, variants }: ProductModalProps) => {
+export const ProductModal = ({ isOpen, onClose, group, variants, isLoading = false }: ProductModalProps) => {
   if (!group) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto animate-scale-in bg-gradient-to-br from-card to-card/95 backdrop-blur-xl border-border/50" style={{ boxShadow: 'var(--shadow-xl)' }}>
         <DialogHeader>
-          <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent animate-slide-in">
+          <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-[#FF6900] via-[#FF8C00] to-[#FF6900] bg-clip-text text-transparent animate-slide-in">
             {group.title || group.group_id}
           </DialogTitle>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
-          {variants.map((variant, idx) => {
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="relative">
+              <Loader2 className="h-12 w-12 animate-spin text-[#FF6900]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FF6900] to-[#FF8C00] rounded-full blur-lg opacity-30 animate-pulse"></div>
+            </div>
+            <p className="mt-4 text-lg font-semibold text-foreground animate-pulse">Lade Produktvarianten...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
+            {variants.map((variant, idx) => {
             const image = variant["Product Image"];
             const name = variant["Product Name"] || group.title || group.group_id || "";
             const size = variant["Product Size"] || variant["Size"] || "";
@@ -83,7 +93,7 @@ export const ProductModal = ({ isOpen, onClose, group, variants }: ProductModalP
                     </div>
                   )}
                   {price != null && (
-                    <div className="text-xl font-bold bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
+                    <div className="text-xl font-bold bg-gradient-to-r from-[#FF6900] to-[#FF8C00] bg-clip-text text-transparent">
                       {currency}{price.toFixed(2)}
                     </div>
                   )}
@@ -91,7 +101,8 @@ export const ProductModal = ({ isOpen, onClose, group, variants }: ProductModalP
               </div>
             );
           })}
-        </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

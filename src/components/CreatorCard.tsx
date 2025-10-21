@@ -30,14 +30,14 @@ export const CreatorCard = ({ creator, onRefresh, isLoading }: CreatorCardProps)
       <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="flex-1 w-full">
           <h2 className="text-3xl font-bold text-foreground mb-6 animate-slide-in">
-            Creator: <span className="bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">{creator.account_id}</span>
+            Creator: <span className="bg-gradient-to-r from-[#FF6900] to-[#FF8C00] bg-clip-text text-transparent">{creator.account_id}</span>
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: "Followers", value: formatNumber(creator.followers), color: "text-foreground", delay: "0ms" },
-              { label: "Engagement", value: `${formatPercent(creator.engagement_rate)}%`, color: "text-primary", delay: "100ms" },
+              { label: "Follower", value: formatNumber(creator.followers), color: "text-foreground", delay: "0ms" },
+              { label: "Engagement", value: `${formatPercent(creator.engagement_rate)}%`, color: "text-[#FF6900]", delay: "100ms" },
               { label: "Tier", value: creator.tier, color: "text-foreground", delay: "200ms" },
-              { label: "Language", value: (creator.language || "N/A").toUpperCase(), color: "text-foreground", delay: "300ms" }
+              { label: "Sprache", value: (creator.language || "N/A").toUpperCase(), color: "text-foreground", delay: "300ms" }
             ].map((stat, i) => (
               <div 
                 key={i}
@@ -63,15 +63,15 @@ export const CreatorCard = ({ creator, onRefresh, isLoading }: CreatorCardProps)
         <Button
           onClick={onRefresh}
           disabled={isLoading}
-          className="relative bg-gradient-to-r from-primary to-primary-hover text-primary-foreground font-bold px-8 py-7 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group/btn animate-bounce-in shadow-lg hover:shadow-xl"
+          className="relative bg-gradient-to-r from-[#FF6900] to-[#FF8C00] text-white font-bold px-8 py-7 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group/btn animate-bounce-in shadow-lg hover:shadow-xl"
           style={{ 
-            boxShadow: 'var(--shadow-primary)',
+            boxShadow: '0 10px 25px rgba(255, 105, 0, 0.3)',
             animationDelay: '400ms'
           }}
         >
           <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700"></span>
           <RefreshCw className={`mr-2 h-5 w-5 relative z-10 ${isLoading ? "animate-spin" : "group-hover/btn:rotate-180 transition-transform duration-500"}`} />
-          <span className="relative z-10">New Creator</span>
+          <span className="relative z-10">Neuer Creator</span>
         </Button>
       </div>
     </div>
