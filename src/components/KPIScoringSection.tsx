@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { TrendingUp, Target, Zap, BarChart3, Star, Award } from "lucide-react";
 
 interface KPIScoringSectionProps {
@@ -79,105 +80,174 @@ export const KPIScoringSection = ({ creator }: KPIScoringSectionProps) => {
     }
   ];
 
+  const overallScore = Math.round(kpiScores.reduce((acc, kpi) => acc + kpi.value, 0) / kpiScores.length);
+
   return (
-    <div className="relative bg-gradient-to-br from-card to-card/80 border border-border/50 rounded-2xl p-8 mb-8 animate-fade-in-up overflow-hidden group" style={{ boxShadow: 'var(--shadow-lg)' }}>
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+    <motion.div 
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4, duration: 0.6 }}
+      className="relative bg-white border border-gray-200 rounded-2xl p-8 mb-8 overflow-hidden group shadow-lg"
+    >
+      {/* Subtle background decoration */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#FF6900]/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       
       <div className="relative">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-hover rounded-xl flex items-center justify-center">
-            <BarChart3 className="h-6 w-6 text-primary-foreground" />
-          </div>
+        {/* Header Section */}
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="flex items-center gap-4 mb-8"
+        >
+          <motion.div 
+            animate={{ 
+              rotate: [0, 360],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{ 
+              duration: 4, 
+              repeat: Infinity, 
+              ease: "easeInOut" 
+            }}
+            className="w-12 h-12 bg-gradient-to-r from-[#FF6900] to-[#FF8C00] rounded-xl flex items-center justify-center shadow-lg"
+          >
+            <BarChart3 className="h-6 w-6 text-white" />
+          </motion.div>
           <div>
-            <h3 className="text-2xl font-bold text-foreground">KPI Scorer-Module</h3>
-            <p className="text-muted-foreground">Algorithmus-basierte Bewertung</p>
+            <h3 className="text-2xl font-bold text-gray-800">KPI Scorer-Module</h3>
+            <p className="text-gray-600 text-sm">Algorithmus-basierte Bewertung</p>
           </div>
-        </div>
+        </motion.div>
 
+        {/* KPI Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {kpiScores.map((kpi, index) => {
             const percentage = (kpi.value / kpi.maxValue) * 100;
             const IconComponent = kpi.icon;
             
             return (
-              <div
+              <motion.div
                 key={index}
-                className="relative bg-gradient-to-br from-secondary/70 to-secondary/40 backdrop-blur-sm rounded-xl p-6 transform transition-all duration-500 hover:scale-105 hover:-translate-y-1 animate-scale-in group/kpi"
-                style={{ 
-                  animationDelay: kpi.delay,
-                  boxShadow: 'var(--shadow-sm)'
+                initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ 
+                  delay: 0.8 + index * 0.1, 
+                  duration: 0.5,
+                  ease: "easeOut"
                 }}
+                whileHover={{ 
+                  y: -5, 
+                  scale: 1.02,
+                  transition: { duration: 0.3 }
+                }}
+                className="relative bg-white border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 group/kpi"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/10 opacity-0 group-hover/kpi:opacity-100 rounded-xl transition-opacity duration-300"></div>
+                {/* Shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover/kpi:translate-x-[100%] transition-transform duration-1000 rounded-xl"></div>
                 
                 <div className="relative">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 bg-gradient-to-r ${kpi.color} rounded-lg flex items-center justify-center`}>
-                        <IconComponent className="h-4 w-4 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-foreground text-sm">{kpi.name}</h4>
-                        <p className="text-xs text-muted-foreground">{kpi.description}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-foreground">{kpi.value}</div>
-                      <div className="text-xs text-muted-foreground">/ {kpi.maxValue}</div>
-                    </div>
-                  </div>
-                  
-                  {/* Progress bar */}
-                  <div className="relative w-full h-3 bg-secondary/50 rounded-full overflow-hidden">
-                    <div 
-                      className={`absolute top-0 left-0 h-full bg-gradient-to-r ${kpi.color} rounded-full transition-all duration-1000 ease-out`}
-                      style={{ 
-                        width: `${percentage}%`,
-                        animationDelay: `${parseInt(kpi.delay) + 200}ms`
+                  {/* Icon and Title */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <motion.div 
+                      animate={{ 
+                        scale: [1, 1.1, 1],
+                        rotate: [0, 5, 0]
                       }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover/kpi:translate-x-[100%] transition-transform duration-1000"></div>
+                      transition={{ 
+                        duration: 2, 
+                        repeat: Infinity, 
+                        ease: "easeInOut",
+                        delay: index * 0.5
+                      }}
+                      className={`w-10 h-10 bg-gradient-to-r ${kpi.color} rounded-lg flex items-center justify-center shadow-md`}
+                    >
+                      <IconComponent className="h-5 w-5 text-white" />
+                    </motion.div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-gray-800 text-sm">{kpi.name}</h4>
+                      <p className="text-xs text-gray-500 leading-relaxed">{kpi.description}</p>
+                    </div>
                   </div>
                   
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-xs text-muted-foreground">{percentage.toFixed(1)}%</span>
+                  {/* Score Display */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-2xl font-bold text-gray-800">{kpi.value}</div>
+                    <div className="text-sm text-gray-500">/ {kpi.maxValue}</div>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-3">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${percentage}%` }}
+                      transition={{ 
+                        delay: 1.0 + index * 0.1, 
+                        duration: 1.2, 
+                        ease: "easeOut" 
+                      }}
+                      className={`absolute top-0 left-0 h-full bg-gradient-to-r ${kpi.color} rounded-full`}
+                    />
+                  </div>
+                  
+                  {/* Percentage and Dots */}
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-600">{percentage.toFixed(1)}%</span>
                     <div className="flex items-center gap-1">
                       {[...Array(5)].map((_, i) => (
-                        <div
+                        <motion.div
                           key={i}
-                          className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ 
+                            scale: i < Math.floor(percentage / 20) ? 1 : 0.3,
+                            opacity: i < Math.floor(percentage / 20) ? 1 : 0.3
+                          }}
+                          transition={{ 
+                            delay: 1.2 + index * 0.1 + i * 0.1,
+                            duration: 0.3,
+                            ease: "easeOut"
+                          }}
+                          className={`w-2 h-2 rounded-full ${
                             i < Math.floor(percentage / 20) 
                               ? `bg-gradient-to-r ${kpi.color}` 
-                              : 'bg-secondary/30'
+                              : 'bg-gray-300'
                           }`}
-                          style={{ animationDelay: `${parseInt(kpi.delay) + 300 + i * 100}ms` }}
                         />
                       ))}
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
 
-        {/* Overall Score */}
-        <div className="mt-8 p-6 bg-gradient-to-r from-primary/10 to-primary-hover/10 rounded-xl border border-primary/20">
+        {/* Overall Score Section */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.4, duration: 0.6 }}
+          className="mt-8 p-6 bg-gradient-to-r from-[#FF6900]/10 to-[#FF8C00]/10 rounded-xl border border-[#FF6900]/20"
+        >
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-lg font-bold text-foreground">Gesamt-Score</h4>
-              <p className="text-sm text-muted-foreground">Durchschnittliche KPI-Bewertung</p>
+              <h4 className="text-lg font-bold text-gray-800">Gesamt-Score</h4>
+              <p className="text-sm text-gray-600">Durchschnittliche KPI-Bewertung</p>
             </div>
-            <div className="text-right">
-              <div className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
-                {Math.round(kpiScores.reduce((acc, kpi) => acc + kpi.value, 0) / kpiScores.length)}
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 1.6, duration: 0.5 }}
+              className="text-right"
+            >
+              <div className="text-4xl font-bold bg-gradient-to-r from-[#FF6900] to-[#FF8C00] bg-clip-text text-transparent">
+                {overallScore}
               </div>
-              <div className="text-sm text-muted-foreground">von 100</div>
-            </div>
+              <div className="text-sm text-gray-600">von 100</div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
